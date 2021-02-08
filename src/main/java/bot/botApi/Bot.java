@@ -52,12 +52,12 @@ public class Bot extends TelegramLongPollingBot {
             lastAnswer = update.getMessage().toString();
             switch (message.getText()) {
                 case "/start":
-                    sendMsg(message, "Нажмите пройти опрос для начала");
+                    sendMsg(message, "Нажмите пройти опрос для начала",null);
                     isAlive = false;
                     break;
                 case "/restart":
                 case "/Пройти опрос заново":
-                    sendMsg(message,"Рестарт опросника");
+                    sendMsg(message,"Рестарт опросника",null);
                     isAlive = false;
                     break;
             }
@@ -67,7 +67,12 @@ public class Bot extends TelegramLongPollingBot {
             while (iterator.hasNext()){
                 if (isAlive) {
                     Map.Entry<String, String[]> entry = iterator.next();
-                    sendMsg(message, entry.getKey());
+                    sendMsg(message, entry.getKey(),entry);
+                    while (message.getText() == null) {
+                        message = update.getMessage();
+                        Thread.yield();
+                    }
+
                     questions.getAnswers().put(lastQuestion,lastAnswer);
                 } else {
                     break;
@@ -83,14 +88,14 @@ public class Bot extends TelegramLongPollingBot {
     }
 
     //Перенести в сервис
-    private void sendMsg(Message message, String text) {
+    private void sendMsg(Message message, String text, Map.Entry<String,String[]> entry) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.enableMarkdown(true);
         sendMessage.setChatId(message.getChatId().toString());
         sendMessage.setReplyToMessageId(message.getMessageId());
         sendMessage.setText(text);
         try {
-            setButtons(sendMessage,message,null);
+            setButtons(sendMessage,message,entry);
             execute(sendMessage);
         } catch (TelegramApiException e) {
             e.printStackTrace();
@@ -115,13 +120,13 @@ public class Bot extends TelegramLongPollingBot {
                 || message.getText().equalsIgnoreCase("/shareNumber"))) {
             keyRow1.add(new KeyboardButton("/Пройти опрос").setRequestContact(true));
         } else if (entry != null) {
-            KeyboardRow keyRow2 = new KeyboardRow();
             for (String value : entry.getValue()) {
                 keyRow1.add(new KeyboardButton(value));
             }
+            KeyboardRow keyRow2 = new KeyboardRow();
             keyRow2.add(new KeyboardButton("/Пройти опрос заново"));
-            keyboardRows.add(keyRow1);
             keyboardRows.add(keyRow2);
+            keyboardRows.add(keyRow1);
         } else {
             keyRow1.add(new KeyboardButton("/Пройти опрос").setRequestContact(true));
     }
