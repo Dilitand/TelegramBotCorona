@@ -49,26 +49,25 @@ public class Bot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         Message message = update.getMessage();
-        if (message != null && message.hasText() && !lastQuestion.contains("вопрос!")) {
+        if (message != null && message.hasText() && !lastQuestion.contains(" вопрос. ")) {
             lastAnswer = update.getMessage().toString();
             switch (message.getText()) {
                 case "/start":
                     sendMsg(message, "Нажмите пройти опрос для начала", null);
-                    isAlive = false;
+                    currentPosition = 0;
                     break;
                 case "/restart":
                 case "/Пройти опрос заново":
                     sendMsg(message, "Рестарт опросника", null);
-                    isAlive = false;
+                    currentPosition = 0;
                     break;
             }
-        } else if (message.getContact() != null) {
-            isAlive = true;
+        } else if (message.getContact() != null || lastQuestion.contains(" вопрос. ") || lastQuestion) {
             if (currentPosition == questions.getQuestions().size() - 1) {
                 System.out.println("end");
             } else {
                 sendMsg(message, questions.getQuestions().get(currentPosition)[0], questions.getQuestions().get(currentPosition));
-
+                System.out.println(message.getText());
                 questions.getAnswers().put(lastQuestion, lastAnswer);
                 currentPosition++;
             }
