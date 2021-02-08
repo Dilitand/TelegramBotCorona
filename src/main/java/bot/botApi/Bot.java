@@ -112,6 +112,7 @@ public class Bot extends TelegramLongPollingBot {
 
         List<KeyboardRow> keyboardRows = new ArrayList<>();
         KeyboardRow keyRow1 = new KeyboardRow();
+        KeyboardRow keyRow2 = new KeyboardRow();
 
         if (message.getText() != null
                 && (message.getText().equalsIgnoreCase("/start")
@@ -123,13 +124,12 @@ public class Bot extends TelegramLongPollingBot {
             for (String value : entry.getValue()) {
                 keyRow1.add(new KeyboardButton(value));
             }
-            KeyboardRow keyRow2 = new KeyboardRow();
             keyRow2.add(new KeyboardButton("/Пройти опрос заново"));
-            keyboardRows.add(keyRow2);
-            keyboardRows.add(keyRow1);
         } else {
             keyRow1.add(new KeyboardButton("/Пройти опрос").setRequestContact(true));
     }
+        keyboardRows.add(keyRow1);
+        keyboardRows.add(keyRow2);
         replyKeyboardMarkup.setKeyboard(keyboardRows);
     }
 
