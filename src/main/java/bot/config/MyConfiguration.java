@@ -17,12 +17,13 @@ import javax.annotation.PostConstruct;
 
 
 @org.springframework.context.annotation.Configuration
-@ComponentScan(basePackages = {"bot"})
+@ComponentScan(basePackages = {"bot","bot.models.coronamodels"})
 @PropertySource("classpath:bot.properties")
 public class MyConfiguration {
 
     @Autowired
     Environment env;
+    @Autowired
     Questions questions;
 
     @Bean(name = "MyEnvironment")

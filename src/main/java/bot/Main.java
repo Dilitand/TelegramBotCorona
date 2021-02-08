@@ -12,11 +12,5 @@ public class Main {
     public static void main(String[] args) {
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(MyConfiguration.class);
         Bot bot =  (Bot) context.getBean("TelegramBot");
-        /*
-        try {
-            System.out.println(WeatherRequest.getWeather("London", new FullModelWeather()));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
     }
 }

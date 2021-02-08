@@ -27,14 +27,15 @@ public class Bot extends TelegramLongPollingBot {
     private Environment environment;
     private Questions questions;
 
+    private boolean isAlive = false;
     private String lastAnswer = "";
     private String lastQuestion = "";
-    private Map<String,String> answers = new LinkedHashMap();
+
 
     public Bot() {
     }
 
-    public Bot(@Qualifier("MyEnvironment")Environment environment, Questions questions) {
+    public Bot(@Qualifier("MyEnvironment")Environment environment, @Qualifier("QuestionV1") Questions questions) {
         this.environment = environment;
         this.questions = questions;
     }
@@ -52,41 +53,28 @@ public class Bot extends TelegramLongPollingBot {
             switch (message.getText()) {
                 case "/start":
                     sendMsg(message, "Нажмите пройти опрос для начала");
+                    isAlive = false;
                     break;
                 case "/restart":
                 case "/Пройти опрос заново":
                     sendMsg(message,"Рестарт опросника");
+                    isAlive = false;
                     break;
             }
         } else if (message.getContact() != null) {
-            lastQuestion = "Первый вопрос!";
-            sendMsg(message, lastQuestion);
-        } else if (lastQuestion.equalsIgnoreCase("Первый вопрос!")) {
-            lastAnswer = message.getText();
-            answers.put(lastQuestion,lastAnswer);
-            lastQuestion = "Второй вопрос!";
-            sendMsg(message, lastQuestion);
-        } else if (lastQuestion.equalsIgnoreCase("Второй вопрос!")) {
-            lastAnswer = message.getText();
-            answers.put(lastQuestion,lastAnswer);
-            lastQuestion = "Третий вопрос!";
-            sendMsg(message, lastQuestion);
-        } else if (lastQuestion.equalsIgnoreCase("Третий вопрос!")) {
-            lastAnswer = message.getText();
-            answers.put(lastQuestion,lastAnswer);
-            System.out.println(answers.values().toString());
-            SendMessage sendMessage = new SendMessage();
-            sendMessage.enableMarkdown(true);
-            sendMessage.setChatId(message.getChatId().toString());
-            sendMessage.setReplyToMessageId(message.getMessageId());
-            sendMessage.setText("Спасибо за прохождение опроса");
-            try {
-                setButtons(sendMessage, message);
-                execute(sendMessage);
-            } catch (Exception e) {
-                e.printStackTrace();
+            isAlive = true;
+            Iterator<Map.Entry<String,String[]>> iterator = questions.getQuestions().entrySet().iterator();
+            while (iterator.hasNext()){
+                if (isAlive) {
+                    Map.Entry<String, String[]> entry = iterator.next();
+                    sendMsg(message, entry.getKey());
+                    questions.getAnswers().put(lastQuestion,lastAnswer);
+                } else {
+                    break;
+                }
             }
-        }
+            System.out.println(questions.getAnswers()   );
+         }
     }
 
     @Override
@@ -102,23 +90,14 @@ public class Bot extends TelegramLongPollingBot {
         sendMessage.setReplyToMessageId(message.getMessageId());
         sendMessage.setText(text);
         try {
-            setButtons(sendMessage,message);
+            setButtons(sendMessage,message,null);
             execute(sendMessage);
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
-        /*
-        * depricated
-        try {
-            sendMessage(sendMessage);
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-        }
-        * */
     }
 
-
-    public void setButtons(SendMessage sendMessage, Message message){
+    public void setButtons(SendMessage sendMessage, Message message, Map.Entry<String,String[]> entry){
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
         sendMessage.setReplyMarkup(replyKeyboardMarkup);
 
@@ -135,32 +114,17 @@ public class Bot extends TelegramLongPollingBot {
                 || message.getText().equalsIgnoreCase("/Пройти опрос заново")
                 || message.getText().equalsIgnoreCase("/shareNumber"))) {
             keyRow1.add(new KeyboardButton("/Пройти опрос").setRequestContact(true));
-        } else if (sendMessage.getText().equalsIgnoreCase("Первый вопрос!")) {
-            System.out.println("1 вопрос");
+        } else if (entry != null) {
             KeyboardRow keyRow2 = new KeyboardRow();
-            keyRow1.add(new KeyboardButton("1"));
-            keyRow1.add(new KeyboardButton("2"));
+            for (String value : entry.getValue()) {
+                keyRow1.add(new KeyboardButton(value));
+            }
             keyRow2.add(new KeyboardButton("/Пройти опрос заново"));
-            keyboardRows.add(keyRow2);
-        } else if (sendMessage.getText().equalsIgnoreCase("Второй вопрос!")) {
-            System.out.println("2 вопрос");
-            KeyboardRow keyRow2 = new KeyboardRow();
-            keyRow1.add(new KeyboardButton("3"));
-            keyRow1.add(new KeyboardButton("4"));
-            keyRow2.add(new KeyboardButton("/Пройти опрос заново"));
-            keyboardRows.add(keyRow2);
-        } else if (sendMessage.getText().equalsIgnoreCase("Третий вопрос!")) {
-            System.out.println("3 вопрос");
-            KeyboardRow keyRow2 = new KeyboardRow();
-            keyRow1.add(new KeyboardButton("5"));
-            keyRow1.add(new KeyboardButton("6"));
-            keyRow2.add(new KeyboardButton("/Пройти опрос заново"));
+            keyboardRows.add(keyRow1);
             keyboardRows.add(keyRow2);
         } else {
             keyRow1.add(new KeyboardButton("/Пройти опрос").setRequestContact(true));
     }
-
-        keyboardRows.add(keyRow1);
         replyKeyboardMarkup.setKeyboard(keyboardRows);
     }
 

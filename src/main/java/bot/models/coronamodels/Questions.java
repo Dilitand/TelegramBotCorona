@@ -7,9 +7,14 @@ import java.util.Map;
 
 @Component
 public abstract class Questions {
-    Map<String, String[]> questions = new LinkedHashMap();
+    LinkedHashMap<String, String[]> questions = new LinkedHashMap();
+    LinkedHashMap<String,String> answers = new LinkedHashMap<>();
 
-    public Map<String, String[]> getQuestions() {
+    public LinkedHashMap<String, String[]> getQuestions() {
         return questions;
+    }
+
+    public LinkedHashMap<String, String> getAnswers() {
+        return answers;
     }
 }
