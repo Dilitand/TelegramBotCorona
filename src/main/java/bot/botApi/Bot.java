@@ -62,12 +62,14 @@ public class Bot extends TelegramLongPollingBot {
                     currentPosition = 0;
                     break;
             }
-        } else if (message.getContact() != null || lastQuestion.contains(" вопрос. ") || lastQuestion) {
+        } else if (message.getContact() != null || lastQuestion.contains(" вопрос. ")) {
             if (currentPosition == questions.getQuestions().size() - 1) {
                 System.out.println("end");
             } else {
+                lastQuestion = questions.getQuestions().get(currentPosition)[0];
                 sendMsg(message, questions.getQuestions().get(currentPosition)[0], questions.getQuestions().get(currentPosition));
                 System.out.println(message.getText());
+                System.out.println(lastQuestion);
                 questions.getAnswers().put(lastQuestion, lastAnswer);
                 currentPosition++;
             }
