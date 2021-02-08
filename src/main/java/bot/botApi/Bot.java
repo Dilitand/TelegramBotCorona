@@ -1,5 +1,6 @@
 package bot.botApi;
 
+import bot.models.coronamodels.Questions;
 import bot.models.openweathermodel.FullModelWeather;
 import bot.models.openweathermodel.SimpleModelWeather;
 import bot.parser.WeatherRequest;
@@ -24,8 +25,8 @@ import java.util.*;
 public class Bot extends TelegramLongPollingBot {
 
     private Environment environment;
-    private Map opros;
-    private Contact contact = new Contact();
+    private Questions questions;
+
     private String lastAnswer = "";
     private String lastQuestion = "";
     private Map<String,String> answers = new LinkedHashMap();
@@ -33,8 +34,9 @@ public class Bot extends TelegramLongPollingBot {
     public Bot() {
     }
 
-    public Bot(@Qualifier("MyEnvironment")Environment environment) {
+    public Bot(@Qualifier("MyEnvironment")Environment environment, Questions questions) {
         this.environment = environment;
+        this.questions = questions;
     }
 
     @Override
@@ -51,33 +53,13 @@ public class Bot extends TelegramLongPollingBot {
                 case "/start":
                     sendMsg(message, "Нажмите пройти опрос для начала");
                     break;
-                case "/help":
-                    //execute(sendMessage.setText(message.getText() + "how can i help"));
-                    sendMsg(message, "Введите город (иностранные на английском)");
-                    break;
-                case "/settings":
-                    sendMsg(message, "Что будем настраивать");
-                    break;
                 case "/restart":
                 case "/Пройти опрос заново":
                     sendMsg(message,"Рестарт опросника");
                     break;
-                case "12345":
-                    sendMsg(message,"12345");
-                    break;
-                //weahter example
-                /*
-                default:
-                    try {
-                        sendMsg(message, WeatherRequest.getWeather(message.getText(), new SimpleModelWeather()));
-                    } catch (IOException e) {
-                        sendMsg(message,"Город не найден");
-                    }
-                */
             }
         } else if (message.getContact() != null) {
             lastQuestion = "Первый вопрос!";
-            lastAnswer = message.getText();
             sendMsg(message, lastQuestion);
         } else if (lastQuestion.equalsIgnoreCase("Первый вопрос!")) {
             lastAnswer = message.getText();

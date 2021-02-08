@@ -2,6 +2,8 @@ package bot.config;
 
 
 import bot.botApi.Bot;
+import bot.models.coronamodels.Questions;
+import bot.models.coronamodels.QuestionsV1;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -21,10 +23,16 @@ public class MyConfiguration {
 
     @Autowired
     Environment env;
+    Questions questions;
 
     @Bean(name = "MyEnvironment")
     public Environment getEnvironment(){
         return env;
+    }
+
+    @Bean(name = "QuestionV1")
+    public Questions getQuestions(){
+        return new QuestionsV1();
     }
 
     @PostConstruct
@@ -32,7 +40,7 @@ public class MyConfiguration {
         ApiContextInitializer.init();
         TelegramBotsApi telegramBotsApi = new TelegramBotsApi();
         try {
-            telegramBotsApi.registerBot(new Bot(env));
+            telegramBotsApi.registerBot(new Bot(env,questions));
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
