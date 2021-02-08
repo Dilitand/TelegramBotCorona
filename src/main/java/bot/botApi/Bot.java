@@ -63,17 +63,32 @@ public class Bot extends TelegramLongPollingBot {
                     break;
             }
         } else if (message.getContact() != null || lastQuestion.contains(" вопрос. ")) {
-            if (currentPosition == questions.getQuestions().size() - 1) {
-                System.out.println("end");
+            if (currentPosition == questions.getQuestions().size()) {
+                sendMsg(message, lastQuestion, questions.getQuestions().get(currentPosition-1));
+                lastAnswer = message.getText();
+
+                questions.getAnswers().put(questions.getQuestions().get(currentPosition-1)[0], lastAnswer);
+                System.out.println(questions.getAnswers());
+
+                currentPosition = 0;
+                lastAnswer = null;
+                lastQuestion = null;
+                sendMsg(message, questions.getAnswers().toString(), null);
+                sendMsg(message, "Рестарт опросника", null);
+
             } else {
                 lastQuestion = questions.getQuestions().get(currentPosition)[0];
-                sendMsg(message, questions.getQuestions().get(currentPosition)[0], questions.getQuestions().get(currentPosition));
-                System.out.println(message.getText());
-                System.out.println(lastQuestion);
-                questions.getAnswers().put(lastQuestion, lastAnswer);
+                sendMsg(message, lastQuestion, questions.getQuestions().get(currentPosition));
+                lastAnswer = message.getText();
+                if (lastAnswer != null){
+                    System.out.println(questions.getQuestions().get(currentPosition-1)[0]);
+                    System.out.println(lastAnswer);
+                    questions.getAnswers().put(questions.getQuestions().get(currentPosition-1)[0], lastAnswer);
+                }
                 currentPosition++;
             }
         }
+
     }
 
     @Override

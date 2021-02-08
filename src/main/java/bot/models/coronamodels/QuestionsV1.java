@@ -11,7 +11,7 @@ public class QuestionsV1 extends Questions {
     public void fillQuestion(){
 
         questions.add(new String[]{"1 вопрос. Температура тела?","до 36","36-37","37-38","выше 38"});
-        questions.add(new String[]{"2 вопрос. Одышка?","да,нет"});
+        questions.add(new String[]{"2 вопрос. Одышка?","да","нет"});
         questions.add(new String[]{"3 вопрос. Затрудненное дыхание?","да","нет"});
         questions.add(new String[]{"4 вопрос. Боли в груди?","да","нет"});
         questions.add(new String[]{"5 вопрос. Слабость?","да","нет"});
