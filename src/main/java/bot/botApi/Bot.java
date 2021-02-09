@@ -78,12 +78,20 @@ public class Bot extends TelegramLongPollingBot {
                 //sendMsg(message, "Рестарт опросника", null);
             } else {
                 isAlive = true;
+                //lastQuestion = questions.getQuestions().get(currentPosition)[0];
+                //sendMsg(message, lastQuestion, questions.getQuestions().get(currentPosition));
+                lastAnswer = message.getText();
+                if (lastAnswer != null)  {
+                    if (Arrays.asList(questions.getQuestions().get(currentPosition-1)).contains(lastAnswer)) {
+                        questions.getAnswers().put(questions.getQuestions().get(currentPosition - 1)[0], lastAnswer);
+                    } else
+                    {
+                        currentPosition--;
+                    }
+                }
+
                 lastQuestion = questions.getQuestions().get(currentPosition)[0];
                 sendMsg(message, lastQuestion, questions.getQuestions().get(currentPosition));
-                lastAnswer = message.getText();
-                if (lastAnswer != null) {
-                    questions.getAnswers().put(questions.getQuestions().get(currentPosition - 1)[0], lastAnswer);
-                }
                 currentPosition++;
             }
         }
