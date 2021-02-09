@@ -69,12 +69,13 @@ public class Bot extends TelegramLongPollingBot {
                 resetAnswers();
                 sendMsg(message, "Рестарт опросника", null);
             }
+            //Нужно доделать чтобы опросник проверял ответы
             else if (currentPosition == questions.getQuestions().size() && isAlive) {
                 lastAnswer = message.getText();
                 questions.getAnswers().put(questions.getQuestions().get(currentPosition - 1)[0], lastAnswer);
                 resetAnswers();
-                sendMsg(message, questions.getAnswers().toString(), null);
-                sendMsg(message, "Рестарт опросника", null);
+                sendMsg(message, "Спасибо опрос завершен.\n" + questions.getAnswers().toString(), null);
+                //sendMsg(message, "Рестарт опросника", null);
             } else {
                 isAlive = true;
                 lastQuestion = questions.getQuestions().get(currentPosition)[0];
@@ -93,7 +94,6 @@ public class Bot extends TelegramLongPollingBot {
         lastAnswer = "";
         lastQuestion = "";
         isAlive = false;
-        questions.getAnswers().clear();
     }
 
 
