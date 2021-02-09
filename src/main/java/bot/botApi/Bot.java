@@ -1,10 +1,6 @@
 package bot.botApi;
 
 import bot.models.coronamodels.Questions;
-import bot.models.openweathermodel.FullModelWeather;
-import bot.models.openweathermodel.SimpleModelWeather;
-import bot.parser.WeatherRequest;
-import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
