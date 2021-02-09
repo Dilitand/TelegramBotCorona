@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
-import org.telegram.telegrambots.api.objects.Contact;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardMarkup;
@@ -31,7 +30,7 @@ public class Bot extends TelegramLongPollingBot {
     private boolean isAlive = false;
     private String lastAnswer = "";
     private String lastQuestion = "";
-
+    private List systemCom = Arrays.asList("/start", "/restart", "/Пройти опрос заново");
 
     public Bot() {
     }
@@ -49,47 +48,54 @@ public class Bot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         Message message = update.getMessage();
-        if (message != null && message.hasText() && !lastQuestion.contains(" вопрос. ")) {
-            lastAnswer = update.getMessage().toString();
+        if (message != null && message.hasText() && message.getText() != null && !isAlive && systemCom.contains(message.getText())) {
+            lastAnswer = message.getText();
             switch (message.getText()) {
                 case "/start":
+                    resetAnswers();
                     sendMsg(message, "Нажмите пройти опрос для начала", null);
-                    currentPosition = 0;
                     break;
                 case "/restart":
                 case "/Пройти опрос заново":
+                    resetAnswers();
                     sendMsg(message, "Рестарт опросника", null);
-                    currentPosition = 0;
                     break;
             }
-        } else if (message.getContact() != null || lastQuestion.contains(" вопрос. ")) {
-            if (currentPosition == questions.getQuestions().size()) {
-                sendMsg(message, lastQuestion, questions.getQuestions().get(currentPosition-1));
+        }
+        //Если прилетел контакт то можно начинать
+        else if ((message.getContact() != null || isAlive)) {
+            //Проверка прерывания опросника
+            if (systemCom.contains(message.getText()) && isAlive) {
+                resetAnswers();
+                sendMsg(message, "Рестарт опросника", null);
+            }
+            else if (currentPosition == questions.getQuestions().size() && isAlive) {
                 lastAnswer = message.getText();
-
-                questions.getAnswers().put(questions.getQuestions().get(currentPosition-1)[0], lastAnswer);
-                System.out.println(questions.getAnswers());
-
-                currentPosition = 0;
-                lastAnswer = null;
-                lastQuestion = null;
+                questions.getAnswers().put(questions.getQuestions().get(currentPosition - 1)[0], lastAnswer);
+                resetAnswers();
                 sendMsg(message, questions.getAnswers().toString(), null);
                 sendMsg(message, "Рестарт опросника", null);
-
             } else {
+                isAlive = true;
                 lastQuestion = questions.getQuestions().get(currentPosition)[0];
                 sendMsg(message, lastQuestion, questions.getQuestions().get(currentPosition));
                 lastAnswer = message.getText();
-                if (lastAnswer != null){
-                    System.out.println(questions.getQuestions().get(currentPosition-1)[0]);
-                    System.out.println(lastAnswer);
-                    questions.getAnswers().put(questions.getQuestions().get(currentPosition-1)[0], lastAnswer);
+                if (lastAnswer != null) {
+                    questions.getAnswers().put(questions.getQuestions().get(currentPosition - 1)[0], lastAnswer);
                 }
                 currentPosition++;
             }
         }
-
     }
+
+    private void resetAnswers(){
+        currentPosition = 0;
+        lastAnswer = "";
+        lastQuestion = "";
+        isAlive = false;
+        questions.getAnswers().clear();
+    }
+
 
     @Override
     public String getBotUsername() {
@@ -126,8 +132,7 @@ public class Bot extends TelegramLongPollingBot {
         if (message.getText() != null
                 && (message.getText().equalsIgnoreCase("/start")
                 || message.getText().equalsIgnoreCase("/restart")
-                || message.getText().equalsIgnoreCase("/Пройти опрос заново")
-                || message.getText().equalsIgnoreCase("/shareNumber"))) {
+                || message.getText().equalsIgnoreCase("/Пройти опрос заново"))) {
             keyRow1.add(new KeyboardButton("/Пройти опрос").setRequestContact(true));
         } else if (questions != null) {
             for (int i = 1; i < questions.length; i++) {
@@ -141,5 +146,4 @@ public class Bot extends TelegramLongPollingBot {
         keyboardRows.add(keyRow2);
         replyKeyboardMarkup.setKeyboard(keyboardRows);
     }
-
 }
