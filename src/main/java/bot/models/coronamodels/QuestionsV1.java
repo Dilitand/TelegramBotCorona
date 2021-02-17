@@ -9,12 +9,13 @@ public class QuestionsV1 extends Questions {
 
     @PostConstruct
     public void fillQuestion(){
-        questions.put("Температура тела?",new String[]{"до 36","36-37","37-38","выше 38"});
-        questions.put("Одышка?",new String[]{"да,нет"});
-        questions.put("Затрудненное дыхание?",new String[]{"да,нет"});
-        questions.put("Боли в груди?",new String[]{"да,нет"});
-        questions.put("Слабость?",new String[]{"да,нет"});
-        questions.put("Потеря обоняния?",new String[]{"да,нет"});
-        questions.put("Потеря вкуса?",new String[]{"да,нет"});
+
+        questions.add(new String[]{"1 вопрос. Температура тела?","до 36","36-37","37-38","выше 38"});
+        questions.add(new String[]{"2 вопрос. Одышка?","да","нет"});
+        questions.add(new String[]{"3 вопрос. Затрудненное дыхание?","да","нет"});
+        questions.add(new String[]{"4 вопрос. Боли в груди?","да","нет"});
+        questions.add(new String[]{"5 вопрос. Слабость?","да","нет"});
+        questions.add(new String[]{"6 вопрос. Потеря обоняния?","да","нет"});
+        questions.add(new String[]{"7 вопрос. Потеря вкуса?","да","нет"});
     }
 }
